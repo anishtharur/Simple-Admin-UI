@@ -1,0 +1,14 @@
+.searchbar{
+    display: flex;
+    gap: 2rem;
+}
+
+.search{
+    width: 100%;
+}
+
+.actionBtn{
+    display: flex;
+    gap: 1rem;
+}
+
