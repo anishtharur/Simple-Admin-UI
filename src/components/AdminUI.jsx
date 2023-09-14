@@ -12,6 +12,7 @@ function Admin() {
   const [users, setUsers] = useState([]);
   const [searchUsers, setSearchUsers] = useState([]);
   const [isError, setError] = useState(false);
+  const [soError, setSoError] = useState(false);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
 
   // Determine the list of users to be displayed based on search or all users
@@ -49,7 +50,9 @@ function Admin() {
           }))
         )
       )
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        setError(true);
+      });
   }, []);
 
   /**
@@ -57,8 +60,15 @@ function Admin() {
    * @param {number} id - The ID of the user to be deleted.
    */
   const handleDelete = (id) => {
-    const updatedUsers = users.filter((user) => user.id !== id);
-    setUsers(updatedUsers);
+    try {
+      const updatedUsers = searchUsers.filter((user) => user.id !== id);
+      setSearchUsers(updatedUsers);
+
+      const updatedUsers1 = users.filter((user) => user.id !== id);
+      setUsers(updatedUsers1);
+    } catch (err) {
+      setSoError(true);
+    }
   };
 
   /**
@@ -66,16 +76,20 @@ function Admin() {
    * @param {number} id - The ID of the user to be edited.
    */
   const handleEdit = (id) => {
-    if (searchUsers.length > 0) {
-      const updatedUsers = searchUsers.map((user) =>
-        user.id === id ? { ...user, editEnabled: true } : user
-      );
-      setSearchUsers(updatedUsers);
-    } else {
-      const updatedUsers = users.map((user) =>
-        user.id === id ? { ...user, editEnabled: true } : user
-      );
-      setUsers(updatedUsers);
+    try {
+      if (searchUsers.length > 0) {
+        const updatedUsers = searchUsers.map((user) =>
+          user.id === id ? { ...user, editEnabled: true } : user
+        );
+        setSearchUsers(updatedUsers);
+      } else {
+        const updatedUsers = users.map((user) =>
+          user.id === id ? { ...user, editEnabled: true } : user
+        );
+        setUsers(updatedUsers);
+      }
+    } catch (err) {
+      setSoError(true);
     }
   };
 
@@ -84,16 +98,20 @@ function Admin() {
    * @param {number} id - The ID of the user whose editing is being canceled.
    */
   const handleCancel = (id) => {
-    if (searchUsers.length > 0) {
-      const updatedUsers = searchUsers.map((user) =>
-        user.id === id ? { ...user, editEnabled: false } : user
-      );
-      setSearchUsers(updatedUsers);
-    } else {
-      const updatedUsers = users.map((user) =>
-        user.id === id ? { ...user, editEnabled: false } : user
-      );
-      setUsers(updatedUsers);
+    try {
+      if (searchUsers.length > 0) {
+        const updatedUsers = searchUsers.map((user) =>
+          user.id === id ? { ...user, editEnabled: false } : user
+        );
+        setSearchUsers(updatedUsers);
+      } else {
+        const updatedUsers = users.map((user) =>
+          user.id === id ? { ...user, editEnabled: false } : user
+        );
+        setUsers(updatedUsers);
+      }
+    } catch (err) {
+      setSoError(true);
     }
   };
 
@@ -105,32 +123,37 @@ function Admin() {
    * @param {string} role - The new role for the user.
    */
   const handleSave = (id, name, email, role) => {
-    if (searchUsers.length > 0) {
-      const updatedUsers = searchUsers.map((user) =>
-        user.id === id
-          ? {
-              ...user,
-              name: name,
-              email: email,
-              role: role,
-              editEnabled: false,
-            }
-          : user
-      );
-      setSearchUsers(updatedUsers);
-    } else {
-      const updatedUsers = users.map((user) =>
-        user.id === id
-          ? {
-              ...user,
-              name: name,
-              email: email,
-              role: role,
-              editEnabled: false,
-            }
-          : user
-      );
-      setUsers(updatedUsers);
+    try {
+      if (searchUsers.length > 0) {
+        const updatedUsers = searchUsers.map((user) =>
+          user.id === id
+            ? {
+                ...user,
+                name: name,
+                email: email,
+                role: role,
+                editEnabled: false,
+              }
+            : user
+        );
+        setSearchUsers(updatedUsers);
+      }
+      if (users.length > 0) {
+        const updatedUsers = users.map((user) =>
+          user.id === id
+            ? {
+                ...user,
+                name: name,
+                email: email,
+                role: role,
+                editEnabled: false,
+              }
+            : user
+        );
+        setUsers(updatedUsers);
+      }
+    } catch (err) {
+      setSoError(true);
     }
   };
 
@@ -143,14 +166,21 @@ function Admin() {
     if (searchTerm === "") {
       setSearchUsers([]);
     } else {
-      const searchedUsers = users.filter(
-        (user) =>
-          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.role.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      if (searchedUsers.length <= 0 || !searchUsers) setError(true);
-      setSearchUsers(searchedUsers);
+      try {
+        const searchedUsers = users.filter(
+          (user) =>
+            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.role.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        console.log(searchedUsers);
+        if (searchedUsers.length <= 0 || !searchUsers) setError(true);
+
+        setSearchUsers(searchedUsers);
+        setPage(1);
+      } catch (err) {
+        setError(true);
+      }
     }
   };
 
@@ -159,16 +189,20 @@ function Admin() {
    * @param {number} id - The ID of the user whose selection is being toggled.
    */
   const handleChecked = (id) => {
-    if (searchUsers.length > 0) {
-      const updatedUsers = searchUsers.map((user) =>
-        user.id === id ? { ...user, isSelected: !user.isSelected } : user
-      );
-      setSearchUsers(updatedUsers);
-    } else {
-      const updatedUsers = users.map((user) =>
-        user.id === id ? { ...user, isSelected: !user.isSelected } : user
-      );
-      setUsers(updatedUsers);
+    try {
+      if (searchUsers.length > 0) {
+        const updatedUsers = searchUsers.map((user) =>
+          user.id === id ? { ...user, isSelected: !user.isSelected } : user
+        );
+        setSearchUsers(updatedUsers);
+      } else {
+        const updatedUsers = users.map((user) =>
+          user.id === id ? { ...user, isSelected: !user.isSelected } : user
+        );
+        setUsers(updatedUsers);
+      }
+    } catch (err) {
+      setSoError(true);
     }
   };
 
@@ -176,14 +210,18 @@ function Admin() {
    * Handle deletion of one / multiple users.
    */
   const handleDeleteMultiple = () => {
-    if (searchUsers.length > 0) {
-      const updatedUsers = searchUsers.filter((user) => !user.isSelected);
-      setSearchUsers(updatedUsers);
-      setSelectAllChecked(false);
-    } else {
-      const updatedUsers = users.filter((user) => !user.isSelected);
-      setUsers(updatedUsers);
-      setSelectAllChecked(false);
+    try {
+      if (searchUsers.length > 0) {
+        const updatedUsers = searchUsers.filter((user) => !user.isSelected);
+        setSearchUsers(updatedUsers);
+        setSelectAllChecked(false);
+      } else {
+        const updatedUsers = users.filter((user) => !user.isSelected);
+        setUsers(updatedUsers);
+        setSelectAllChecked(false);
+      }
+    } catch (err) {
+      setSoError(true);
     }
   };
 
@@ -192,36 +230,45 @@ function Admin() {
    * @param {Object[]} currUsers - The list of users on the current page.
    */
   const handleAllChecked = (currUsers) => {
-    if (searchUsers.length > 0) {
-      const currListSet = new Set(currUsers.map((user) => user.id));
-      const markCheckedUsers = searchUsers.map((user) =>
-        currListSet.has(user.id)
-          ? { ...user, isSelected: !user.isSelected }
-          : user
-      );
-      setSearchUsers(markCheckedUsers);
-      setSelectAllChecked(!selectAllChecked);
-    } else {
-      const currListSet = new Set(currUsers.map((user) => user.id));
-      const markCheckedUsers = users.map((user) =>
-        currListSet.has(user.id)
-          ? { ...user, isSelected: !user.isSelected }
-          : user
-      );
-      setUsers(markCheckedUsers);
-      setSelectAllChecked(!selectAllChecked);
+    try {
+      if (searchUsers.length > 0) {
+        const currListSet = new Set(currUsers.map((user) => user.id));
+        const markCheckedUsers = searchUsers.map((user) =>
+          currListSet.has(user.id)
+            ? { ...user, isSelected: !user.isSelected }
+            : user
+        );
+        setSearchUsers(markCheckedUsers);
+        setSelectAllChecked(!selectAllChecked);
+      } else {
+        const currListSet = new Set(currUsers.map((user) => user.id));
+        const markCheckedUsers = users.map((user) =>
+          currListSet.has(user.id)
+            ? { ...user, isSelected: !user.isSelected }
+            : user
+        );
+        setUsers(markCheckedUsers);
+        setSelectAllChecked(!selectAllChecked);
+      }
+    } catch (err) {
+      setSoError(true);
     }
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 d-flex flex-column">
       {isError && (
         <div className="alert alert-danger" role="alert">
           No Records Found!
         </div>
       )}
+      {soError && (
+        <div className="alert alert-danger" role="alert">
+          Some error occured. Please try again later!
+        </div>
+      )}
       <Searchbar handleSearch={handleSearch} />
-      <section className="mt-3">
+      <main className="mt-3 table-responsive">
         <table className="table table-hover">
           <thead>
             <tr>
@@ -248,7 +295,7 @@ function Admin() {
             handleChecked={handleChecked}
           />
         </table>
-      </section>
+      </main>
       <Footer
         page={page}
         pageNumbers={pageNumbers}
